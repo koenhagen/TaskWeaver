@@ -2,11 +2,6 @@ name: Python package
 
 on:
   push:
-    branches:    
-      - main
-  pull_request:
-    branches:    
-      - main
 
 jobs:
   pytest:
@@ -28,16 +23,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -e .
+      - run: pip install pytest pytest-cov
       - name: Test with pytest
-        run: |
-          pip install pytest pytest-cov
-          pytest tests/unit_tests --collect-only
-          pytest tests/unit_tests -v --junitxml=junit/test-results-${{ matrix.python-version }}.xml --cov=com --cov-report=xml --cov-report=html
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@v4
+        uses: koenhagen/measure-energy-action@v0.33
         with:
-          name: pytest-results-${{ matrix.python-version }}
-          path: junit/test-results-${{ matrix.python-version }}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
-        
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: pytest tests/unit_tests --collect-only
+          count: 1
